@@ -18,10 +18,11 @@ export class App extends Component {
         <Searchbar onSubmit={this.handleFormSubmit} />
         <ImageGallery searchQuery={this.state.searchQuery} />
 
-        <ToastContainer autoClose={3000} />
+        <ToastContainer autoClose={3000} position="bottom-right" />
       </div>
     );
   }
 }
 
-// /* <Searchbar>, <ImageGallery>, <ImageGalleryItem>, <Loader>, <Button> и <Modal>
+// /* <Searchbar>, <ImageGallery>, <ImageGalleryItem>,  <Loader>, <Modal>
+// <Button>

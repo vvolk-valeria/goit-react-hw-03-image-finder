@@ -4,12 +4,12 @@ import { fetchImg } from '../services/img-api';
 import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem';
 import { toast } from 'react-toastify';
 import { Loader } from '../Loader/Loader';
+import { Container, Gallery, InitialPhrase } from './ImageGallery.styled';
 
 export class ImageGallery extends Component {
   state = {
     items: null,
     status: 'idle',
-    showModal: false,
   };
 
   loadImg = async (newQuery, pageNumber) => {
@@ -42,35 +42,41 @@ export class ImageGallery extends Component {
 
   render() {
     const { status, items } = this.state;
-
-    // const { items, error, status } = this.state;
     // const { searchQuery } = this.props;
 
     if (status === 'idle') {
-      return <h1>Введите слово.</h1>;
+      return (
+        <Container>
+          <InitialPhrase>Введите слово для поиска.</InitialPhrase>
+        </Container>
+      );
     }
     if (status === 'pending') {
-      console.log('лоадер');
-      return <Loader />; //лоадер
-      // return <PokemonPendingViev searchQuery={searchQuery} />;
+      return (
+        <Container>
+          <Loader />
+        </Container>
+      );
     }
     if (status === 'rejected') {
       return toast.error('Упс! Что-то пошло не так!');
     }
     if (status === 'resolved') {
       return (
-        <ul>
-          {items.map(({ id, webformatURL, largeImageURL, tags }) => {
-            return (
-              <ImageGalleryItem
-                key={id}
-                webformatURL={webformatURL}
-                largeImageURL={largeImageURL}
-                tags={tags}
-              />
-            );
-          })}
-        </ul>
+        <Container>
+          <Gallery>
+            {items.map(({ id, webformatURL, largeImageURL, tags }) => {
+              return (
+                <ImageGalleryItem
+                  key={id}
+                  webformatURL={webformatURL}
+                  largeImageURL={largeImageURL}
+                  tags={tags}
+                />
+              );
+            })}
+          </Gallery>
+        </Container>
       );
     }
   }
