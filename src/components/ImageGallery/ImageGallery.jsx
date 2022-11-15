@@ -5,22 +5,26 @@ import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem';
 import { toast } from 'react-toastify';
 import { Loader } from '../Loader/Loader';
 import { Container, Gallery, InitialPhrase } from './ImageGallery.styled';
+import { Button } from '../Button/Button';
 
 export class ImageGallery extends Component {
   state = {
     items: null,
     status: 'idle',
+    page: 1,
   };
 
-  loadImg = async (newQuery, pageNumber) => {
+  loadImg = async newQuery => {
+    const pageNumber = this.state.page;
+
     try {
       this.setState({ status: 'pending' });
       const { hits, totalHits } = await fetchImg(newQuery, pageNumber);
       this.setState({ items: hits, status: 'resolved' });
 
-      if (totalHits === 0) {
+      if (totalHits === 0 || hits.lenght === 0) {
         toast.error(
-          'По вашему запросу ничего не найдено! Попробуйте что-то другое!'
+          'No results were found for your request! Try something else!'
         );
         this.setState({ status: 'idle' });
         return;
@@ -31,12 +35,31 @@ export class ImageGallery extends Component {
     }
   };
 
+  loadMore = () => {
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }));
+  };
+
   componentDidUpdate(prevProps, prevState) {
     const prevQuery = prevProps.searchQuery;
     const newQuery = this.props.searchQuery;
 
+    const prevPage = prevState.page;
+    const newPage = this.state.page;
+
     if (prevQuery !== newQuery) {
-      this.loadImg(newQuery, 1);
+      this.setState({ page: 1 });
+
+      if (newPage === 1) {
+        this.loadImg(newQuery);
+      }
+      return;
+    }
+
+    if (prevPage !== newPage) {
+      this.loadImg(newQuery);
+      return;
     }
   }
 
@@ -47,7 +70,7 @@ export class ImageGallery extends Component {
     if (status === 'idle') {
       return (
         <Container>
-          <InitialPhrase>Введите слово для поиска.</InitialPhrase>
+          <InitialPhrase>Enter a search term.</InitialPhrase>
         </Container>
       );
     }
@@ -59,7 +82,7 @@ export class ImageGallery extends Component {
       );
     }
     if (status === 'rejected') {
-      return toast.error('Упс! Что-то пошло не так!');
+      return toast.error('Oops! Something is wrong!');
     }
     if (status === 'resolved') {
       return (
@@ -76,6 +99,7 @@ export class ImageGallery extends Component {
               );
             })}
           </Gallery>
+          <Button loadMore={this.loadMore} />
         </Container>
       );
     }
@@ -91,5 +115,4 @@ ImageGallery.propTypes = {
       tags: PropTypes.string.isRequired,
     })
   ),
-  // pageNumber: PropTypes.number.isRequired,
 };
