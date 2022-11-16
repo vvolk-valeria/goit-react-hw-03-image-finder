@@ -7,9 +7,11 @@ import { Loader } from '../Loader/Loader';
 import { Container, Gallery, InitialPhrase } from './ImageGallery.styled';
 import { Button } from '../Button/Button';
 
+const PER_PAGE = 12;
+
 export class ImageGallery extends Component {
   state = {
-    items: null,
+    items: [],
     status: 'idle',
     page: 1,
   };
@@ -19,8 +21,17 @@ export class ImageGallery extends Component {
 
     try {
       this.setState({ status: 'pending' });
-      const { hits, totalHits } = await fetchImg(newQuery, pageNumber);
-      this.setState({ items: hits, status: 'resolved' });
+      const { hits, totalHits } = await fetchImg(
+        newQuery,
+        pageNumber,
+        PER_PAGE
+      );
+
+      this.setState(prevState => ({
+        items:
+          this.state.page === 1 ? [...hits] : [...prevState.items, ...hits],
+        status: 'resolved',
+      }));
 
       if (totalHits === 0 || hits.lenght === 0) {
         toast.error(
@@ -28,6 +39,11 @@ export class ImageGallery extends Component {
         );
         this.setState({ status: 'idle' });
         return;
+      }
+      if (pageNumber >= totalHits / hits.length || hits.length === 0) {
+        return toast.error(
+          `We're sorry, but you've reached the end of search results.`
+        );
       }
     } catch (error) {
       console.log(error);
@@ -49,7 +65,7 @@ export class ImageGallery extends Component {
     const newPage = this.state.page;
 
     if (prevQuery !== newQuery) {
-      this.setState({ page: 1 });
+      this.setState({ page: 1, items: [] });
 
       if (newPage === 1) {
         this.loadImg(newQuery);
@@ -65,7 +81,6 @@ export class ImageGallery extends Component {
 
   render() {
     const { status, items } = this.state;
-    // const { searchQuery } = this.props;
 
     if (status === 'idle') {
       return (
@@ -99,7 +114,7 @@ export class ImageGallery extends Component {
               );
             })}
           </Gallery>
-          <Button loadMore={this.loadMore} />
+          {items.length < PER_PAGE ? '' : <Button loadMore={this.loadMore} />}
         </Container>
       );
     }

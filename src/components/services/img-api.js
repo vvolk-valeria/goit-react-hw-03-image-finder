@@ -38,11 +38,11 @@ const seachParams = new URLSearchParams({
   safesearch: true,
 })
 
-let per_page = 12;
+//let per_page = 12;
 
 
-export async function fetchImg(searchQuery, page) {
-  const response = await axios.get(`/?key=${API_KEY}&q=${searchQuery}&${seachParams}&page=${page}&per_page=${per_page}`);
+export async function fetchImg(searchQuery, page,PER_PAGE) {
+  const response = await axios.get(`/?key=${API_KEY}&q=${searchQuery}&${seachParams}&page=${page}&per_page=${PER_PAGE}`);
 
   return response.data;
 };

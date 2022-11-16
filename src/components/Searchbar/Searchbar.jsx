@@ -17,7 +17,7 @@ export class Searchbar extends Component {
   handleSubmit = e => {
     e.preventDefault();
     if (this.state.searchQuery.trim() === '') {
-      toast.error('Введите слово.');
+      toast.error('Enter term for search images and photos.');
       return;
     }
     this.props.onSubmit(this.state.searchQuery);
